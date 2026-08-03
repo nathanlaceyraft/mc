@@ -11,15 +11,15 @@ COPY . .
 RUN CGO_ENABLED=0 GOFIPS140=latest go build -ldflags='-s -w' -o mc main.go
 
 RUN apk add -U --no-cache ca-certificates
-RUN apk add -U curl
-RUN curl -s -q https://raw.githubusercontent.com/minio/mc/master/LICENSE -o /go/LICENSE
-RUN curl -s -q https://raw.githubusercontent.com/minio/mc/master/CREDITS -o /go/CREDITS
 
-FROM scratch
+FROM alpine:3.23.5
 
 COPY --from=build /usr/src/app/mc  /usr/bin/mc
-COPY --from=build /go/CREDITS /licenses/CREDITS
-COPY --from=build /go/LICENSE /licenses/LICENSE
+COPY --from=build /usr/src/app/CREDITS /licenses/CREDITS
+COPY --from=build /usr/src/app/LICENSE /licenses/LICENSE
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+# Create symbolic links from /bin to /usr/bin
+RUN /bin/sh -c 'for f in /bin/*; do ln -s "$f" "/usr/bin/$(basename "$f")"; done 2>/dev/null'
 
 ENTRYPOINT ["/usr/bin/mc"]
