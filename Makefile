@@ -100,3 +100,11 @@ clean:
 	@rm -rvf mc
 	@rm -rvf build
 	@rm -rvf release
+
+ACCESS_TOKEN=${GHP_SECRET}
+
+docker-build-push-both:
+	docker buildx build -f Dockerfile \
+	   --build-arg ACCESS_TOKEN="${ACCESS_TOKEN}" \
+	   --platform linux/amd64,linux/arm64 \
+       -t ghcr.io/raft-tech/ironbank/opensource/minio/mc:REBUILD-RELEASE.2025-08-13T08-35-41Z --push .
